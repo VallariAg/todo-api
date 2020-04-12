@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    ghajsgdhja
+    <ol id="todo"></ol>
+    <button id="add">Add todo</button>
+
+    <script>
+      const add = document.getElementById("add");
+      add.addEventListener("click", async (e) => {
+        let jsonRequest = {};
+        jsonRequest.id = parseInt(prompt("enter id"));
+        jsonRequest.task = prompt("enter task");
+        jsonRequest.due = prompt("enter due date DD-MM-YYYY: ");
+        console.log(jsonRequest);
+        const result = await fetch("http://localhost:8080/todos", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET,HEAD,POST",
+          },
+          body: JSON.stringify(jsonRequest),
+        });
+      });
+
+      readTodos();
+      async function readTodos() {
+        try {
+          const ol = document.getElementById("todo");
+          const result = await fetch("http://localhost:8080/todos", {
+            method: "GET",
+          }).catch((e) => console.log(e));
+          const todos = await result.json();
+          todos.forEach((t) => {
+            console.log(t);
+            const li = document.createElement("li");
+
+            li.textContent = t.task;
+            li.id = t.id;
+            li.addEventListener("click", async (e) => {
+              let jsonRequest = {};
+              jsonRequest.id = parseInt(e.target.id);
+              console.log(jsonRequest);
+              const result = await fetch("http://localhost:8080/todos", {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Access-Control-Allow-Origin": "*",
+                },
+                body: JSON.stringify(jsonRequest),
+              }).catch((e) => console.log(e));
+              // const success = await result.json();
+              // alert("delete");
+            });
+
+            ol.appendChild(li);
+          });
+        } catch (e) {
+          console.log("error code");
+        }
+      }
+    </script>
+  </body>
+</html>
